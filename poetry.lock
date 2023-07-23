@@ -472,7 +472,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "9d48d58ebbddab6f20107c0b3f1aeff2f29c498718ced65817a64eff5939b5b4"
+content-hash = "639a32219a8679469f72065b89395b12abeb4c965712fdbd6a6c8db5ab541521"
 
 [metadata.files]
 annotated-types = []
