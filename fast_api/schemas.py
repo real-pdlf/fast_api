@@ -10,4 +10,16 @@ class UserSchema(BaseModel):
 class UserPublic(BaseModel):
     username: str
     email: EmailStr
-    
+    id: int
+
+
+class UserDB(UserSchema):
+    id: int
+
+
+class UserList(BaseModel):
+    users: list[UserPublic]
+
+
+class Message(BaseModel):
+    detail: str
