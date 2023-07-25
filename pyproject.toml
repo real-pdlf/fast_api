@@ -8,7 +8,7 @@ authors = ["Royal Pandalfuul <ga7w7arcanjo@gmail.com>"]
 python = "^3.10"
 fastapi = "^0.100.0"
 uvicorn = "^0.23.1"
-pydantic = "^2.0.3"
+pydantic = {extras = ["email"], version = "^2.0.3"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2"
