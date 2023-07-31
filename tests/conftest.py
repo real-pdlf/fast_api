@@ -9,11 +9,11 @@ from fast_api.models import Base
 @pytest.fixture
 def session():
     engine = create_engine(
-        'sqlite://:memory:',
+        'sqlite:///:memory:',
         connect_args={'check_same_thread': False},
         poolclass=StaticPool,
     )
-    Session = sessionmaker(autocommit = False, autoflush= False, bind= engine)
+    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(engine)
     yield Session()
     Base.metadata.drop_all(engine)
