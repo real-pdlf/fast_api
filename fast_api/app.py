@@ -4,7 +4,7 @@ from fast_api.schemas import Message, UserDB, UserList, UserPublic, UserSchema
 
 app = FastAPI()
 
-database = [] #only for tests
+database = []   # only for tests
 
 
 @app.get('/')
