@@ -1,12 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from fast_api.app import app
 from fast_api.database import get_session
-from fast_api.models import Base
+from fast_api.models import Base, User
 
 
 @pytest.fixture
@@ -33,3 +33,13 @@ def session():
 
     yield Session()
     Base.metadata.drop_all(engine)
+
+
+@pytest.fixture
+def user(session):
+    user = User(username='Teste', email='teste@test.com', password='test123')
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user
