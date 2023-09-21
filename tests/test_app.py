@@ -11,7 +11,7 @@ client = TestClient(app)
 #     assert response.json() == {'message': 'salve! TwT'}
 
 
-def test_create_user():
+def test_create_user(client):
     response = client.post(
         '/users/',
         json={

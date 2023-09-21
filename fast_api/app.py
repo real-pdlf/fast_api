@@ -1,5 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
+from fast_api.database import get_session
+from fast_api.models import User
 from fast_api.schemas import Message, UserDB, UserList, UserPublic, UserSchema
 
 app = FastAPI()
@@ -25,13 +29,33 @@ def read_user(user_id: int):
 
 
 @app.post('/users/', status_code=201, response_model=UserPublic)
-def create_user(user: UserSchema):
-    """add one new user to database"""
+def create_user(user: UserSchema, session: Session = Depends(get_session)):
+
+    # checks if exists this user
+    db_user = session.scalar(
+        select(User).where(User.username == user.username)
+    )
+
+    if db_user:   # if exists, raise
+        raise HTTPException(
+            status_code=400, detail='Username already registered'
+        )
+
+    else:   # else, add him to database
+        db_user = User(
+            username=user.username, password=user.password, email=user.email
+        )
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+
+        return db_user
+
+    """
     user_with_id = UserDB(**user.model_dump(), id=len(database) + 1)
-
     database.append(user_with_id)
-
     return UserPublic(**user_with_id.model_dump())
+    """
 
 
 @app.put('/users/{user_id}', response_model=UserPublic)
