@@ -50,7 +50,7 @@ def test_read_users_with_users(client, user):
 
 
 def test_user_found(client, user):
-    response = client.get('/users/{}'.format(user.id))
+    response = client.get(f'/users/{user.id}')
     assert response.status_code == 200
     assert response.json() == {
         'username': user.username,
@@ -96,7 +96,7 @@ def test_not_updated(client):
 
 
 def test_delete_user(client, user):
-    response = client.delete('users/{}'.format(user.id))
+    response = client.delete(f'users/{user.id}')
     assert response.status_code == 200
     assert response.json() == {'detail': 'User deleted'}
 
