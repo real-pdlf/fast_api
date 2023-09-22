@@ -65,6 +65,18 @@ def test_user_not_found(client):
     assert response.json() == {'detail': 'User not found'}
 
 
+def test_get_token(client, user):
+    response = client.post(
+        '/token',
+        data={'username': user.email, 'password': user.password},
+    )
+    token = response.json()
+
+    assert response.status_code == 200
+    assert 'access_token' in token
+    assert 'token_type' in token
+
+
 def test_update_user(client, user):
     response = client.put(
         '/users/1',
