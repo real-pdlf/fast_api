@@ -1,12 +1,40 @@
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from fast_api.database import get_session
 from fast_api.models import User
-from fast_api.schemas import Message, UserList, UserPublic, UserSchema
+from fast_api.schemas import Message, Token, UserList, UserPublic, UserSchema
+from fast_api.security import (
+    create_access_token,
+    get_password_hash,
+    verify_password,
+)
 
 app = FastAPI()
+
+
+@app.post('/token', response_model=Token)
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
+    user = session.scalar(select(User).where(User.email == form_data.username))
+
+    if user is None:
+        raise HTTPException(
+            status_code=400, detail='Incorrect email or password'
+        )
+
+    if not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=400, detail='Incorrect email or password'
+        )
+
+    access_token = create_access_token(data={'sub': user.email})
+
+    return {'access_token': access_token, 'token_type': 'bearer'}
 
 
 @app.get('/')
@@ -49,8 +77,10 @@ def create_user(user: UserSchema, session: Session = Depends(get_session)):
         )
 
     else:   # else, add him to database
+        hashed_password = get_password_hash(user.password)
+
         db_user = User(
-            username=user.username, password=user.password, email=user.email
+            username=user.username, password=hashed_password, email=user.email
         )
         session.add(db_user)
         session.commit()
