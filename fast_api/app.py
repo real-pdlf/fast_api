@@ -8,6 +8,7 @@ from fast_api.models import User
 from fast_api.schemas import Message, Token, UserList, UserPublic, UserSchema
 from fast_api.security import (
     create_access_token,
+    get_current_user,
     get_password_hash,
     verify_password,
 )
@@ -91,33 +92,34 @@ def create_user(user: UserSchema, session: Session = Depends(get_session)):
 
 @app.put('/users/{user_id}', response_model=UserPublic)
 def update_user(
-    user_id: int, user: UserSchema, session: Session = Depends(get_session)
+    user_id: int,
+    user: UserSchema,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
 ):
     """update informations about one user, with his id"""
 
-    # query
-    db_user = session.scalar(select(User).where(User.id == user_id))
+    if current_user.id != user_id:   # checks if is logged user
+        raise HTTPException(status_code=400, detail='Not enough permissions')
 
-    if db_user is None:
-        raise HTTPException(status_code=404, detail='User not found')
-    else:
-        db_user.username = user.username
-        db_user.password = user.password
-        db_user.email = user.email
-        session.commit()
-        session.refresh(db_user)
-
-    return db_user
+    current_user.username = user.username
+    current_user.password = user.password
+    current_user.email = user.email
+    return current_user
 
 
 @app.delete('/users/{user_id}', response_model=Message)
-def delete_user(user_id: int, session: Session = Depends(get_session)):
+def delete_user(
+    user_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
     """delete one user from the database, using his id"""
-    db_user = session.scalar(select(User).where(User.id == user_id))
 
-    if db_user is None:
-        raise HTTPException(status_code=404, detail='User not found')
-    else:
-        session.delete(db_user)
-        session.commit()
-        return {'detail': 'User deleted'}
+    if current_user.id != user_id:
+        raise HTTPException(status_code=400, detail='Not enough permissions')
+
+    session.delete(current_user)
+    session.commit()
+
+    return {'detail': 'User deleted'}

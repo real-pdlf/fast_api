@@ -68,7 +68,7 @@ def test_user_not_found(client):
 def test_get_token(client, user):
     response = client.post(
         '/token',
-        data={'username': user.email, 'password': user.password},
+        data={'username': user.email, 'password': user.clean_password},
     )
     token = response.json()
 
@@ -77,9 +77,10 @@ def test_get_token(client, user):
     assert 'token_type' in token
 
 
-def test_update_user(client, user):
+def test_update_user(client, user, token):
     response = client.put(
-        '/users/1',
+        f'/users/{user.id}',
+        headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'buddie',
             'email': 'buddie@exemplo.com',
@@ -90,30 +91,26 @@ def test_update_user(client, user):
     assert response.json() == {
         'username': 'buddie',
         'email': 'buddie@exemplo.com',
-        'id': 1,
+        'id': user.id,
     }
 
 
 def test_not_updated(client):
     response = client.put(
-        '/users/999',
+        '/users/1',
         json={
             'username': 'teste testilson',
             'email': 'test@test.com',
             'password': 'senha nova 123',
         },
     )
-    assert response.status_code == 404
-    assert response.json() == {'detail': 'User not found'}
+    assert response.status_code == 401
+    assert response.json() == {'detail': 'Not authenticated'}
 
 
-def test_delete_user(client, user):
-    response = client.delete(f'users/{user.id}')
+def test_delete_user(client, user, token):
+    response = client.delete(
+        f'users/{user.id}', headers={'Authorization': f'Bearer {token}'}
+    )
     assert response.status_code == 200
     assert response.json() == {'detail': 'User deleted'}
-
-
-def test_not_deleted(client):
-    response = client.delete('users/999')
-    assert response.status_code == 404
-    assert response.json() == {'detail': 'User not found'}
