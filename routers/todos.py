@@ -8,14 +8,15 @@ from fast_api.models import Todo, User
 from fast_api.schemas import TodoPublic, TodoSchema
 from fast_api.security import get_current_user
 
-router = APIRouter(prefix='/todos', tags=['todos'])
-
 CurrentUser = Annotated[User, Depends(get_current_user)]
 Session = Annotated[Session, Depends(get_session)]
+
+router = APIRouter(prefix='/todos', tags=['todos'])
 
 
 @router.post('/', response_model=TodoPublic)
 def create_todo(todo: TodoSchema, user: CurrentUser, session: Session):
+
     db_todo: Todo = Todo(
         title=todo.title,
         description=todo.description,
