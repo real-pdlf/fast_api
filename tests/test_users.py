@@ -18,7 +18,7 @@ def test_create_user(client):
     }
 
 
-def test_user_created(client, user):
+def test_user_already_created(client, user):
     response = client.post(
         '/users/',
         json={
@@ -88,6 +88,21 @@ def test_not_updated(client):
     )
     assert response.status_code == 401
     assert response.json() == {'detail': 'Not authenticated'}
+
+
+def test_update_user_with_wrong_user(client, other_user, token):
+    response = client.put(
+        f'/users/{other_user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+        json={
+            'username': 'joao',
+            'email': 'joao@legal.com',
+            'password': 'nova senha 321',
+        },
+    )
+
+    assert response.json().status_code == 400
+    assert response.json() == {'detail': 'Not enough permissions'}
 
 
 def test_delete_user(client, user, token):

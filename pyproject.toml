@@ -25,6 +25,7 @@ taskipy = "^1.11.0"
 blue = "^0.9.1"
 ruff = "^0.0.279"
 httpx = "^0.24.1"
+factory-boy = "^3.3.0"
 
 [tool.ruff]
 line-length = 79
