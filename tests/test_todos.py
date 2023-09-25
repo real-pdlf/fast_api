@@ -8,7 +8,6 @@ def test_create_todo(client, token):
             'state': 'draft',
         },
     )
-    print(response.json())
     assert response.json() == {
         'id': 1,
         'title': 'Test todo',

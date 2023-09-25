@@ -29,3 +29,29 @@ def create_todo(todo: TodoSchema, user: CurrentUser, session: Session):
     session.refresh(db_todo)
 
     return db_todo
+
+
+@router.get('/', response_model=TodoList)
+def list_todos(
+    session: Session,
+    user: CurrentUser,
+    tittle: str = Query(None),
+    description: str = Query(None),
+    state: str = Query(None),
+    offset: int = Query(None),
+    limit: int = Query(None),
+):
+    query = select(Todo).where(Todo.user_id == user.id)
+
+    if tittle:
+        query = query.filter(Todo.title.contains(title))
+
+    if description:
+        query = query.filter(Todo.description.contains(description))
+
+    if state:
+        query = query.filter(Todo.state == state)
+
+    todos = session.scalars(query.offset(offset).limit(limit)).all()
+
+    return {'todos': todos}
