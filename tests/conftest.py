@@ -1,5 +1,5 @@
-import pytest
 import factory
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -46,7 +46,7 @@ def user(session):
     session.commit()
     session.refresh(user)
 
-    user.clean_password = 'test123'
+    user.clean_password = 'senhateste'
     return user
 
 
