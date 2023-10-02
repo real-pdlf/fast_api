@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from fast_api.database import get_session
 from fast_api.models import Todo, User
-from fast_api.schemas import TodoPublic, TodoSchema, TodoList
+from fast_api.schemas import TodoList, TodoPublic, TodoSchema
 from fast_api.security import get_current_user
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
