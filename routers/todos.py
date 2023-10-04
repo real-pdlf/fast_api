@@ -1,12 +1,18 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from fast_api.database import get_session
 from fast_api.models import Todo, User
-from fast_api.schemas import TodoList, TodoPublic, TodoSchema
+from fast_api.schemas import (
+    Message,
+    TodoList,
+    TodoPublic,
+    TodoSchema,
+    TodoUpdate,
+)
 from fast_api.security import get_current_user
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
@@ -56,3 +62,39 @@ def list_todos(
     todos = session.scalars(query.offset(offset).limit(limit)).all()
 
     return {'todos': todos}
+
+
+@router.patch('/{todo_id}', response_model=TodoPublic)
+def patch_todo(
+    todo_int: int, session: Session, user: CurrentUser, todo: TodoUpdate
+):
+    db_todo = session.scalar(
+        select(Todo).where(Todo.user_id == user.id, Todo_id=Todo.id)
+    )
+
+    if not db_todo:
+        raise HTTPException(status_code=404, detail='Task not found.')
+
+    for key, value in todo.model_dump(exclude_unset=True).items():
+        setattr(db_todo, key, value)
+
+    session.add(db_todo)
+    session.commit()
+    session.refresh(db_todo)
+
+    return db_todo
+
+
+@router.delete('/{todo_id}', response_model=Message)
+def delete_todo(todo_id: int, session: Session, user: CurrentUser):
+    todo = session.scalar(
+        select(Todo).where(todo_id == Todo.id, Todo.user_id == user.id)
+    )
+
+    if not todo:
+        raise HTTPException(status_code=404, detail='Task not found.')
+
+    session.delete(todo)
+    session.commit()
+
+    return {'detail': 'Task deleted successfully.'}
