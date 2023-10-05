@@ -147,7 +147,7 @@ def test_patch_todo(session, client, user, token):
 
     response = client.patch(
         f'/todos/{todo.id}',
-        json={'tittle': 'test'},
+        json={'title': 'test'},
         headers={'Authorization': f'Bearer {token}'},
     )
 
