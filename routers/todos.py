@@ -66,10 +66,10 @@ def list_todos(
 
 @router.patch('/{todo_id}', response_model=TodoPublic)
 def patch_todo(
-    todo_int: int, session: Session, user: CurrentUser, todo: TodoUpdate
+    todo_id: int, session: Session, user: CurrentUser, todo: TodoUpdate
 ):
     db_todo = session.scalar(
-        select(Todo).where(Todo.user_id == user.id, Todo_id=Todo.id)
+        select(Todo).where(Todo.user_id == user.id, todo_id == Todo.id)
     )
 
     if not db_todo:
@@ -91,7 +91,7 @@ def delete_todo(todo_id: int, session: Session, user: CurrentUser):
         select(Todo).where(todo_id == Todo.id, Todo.user_id == user.id)
     )
 
-    if not todo:
+    if todo is None:
         raise HTTPException(status_code=404, detail='Task not found.')
 
     session.delete(todo)
